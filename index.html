@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Animated Browser Home</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+/* RESET */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* BODY BASE */
+body {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background 0.4s ease;
+}
+
+/* 🌙 DARK MODE */
+@media (prefers-color-scheme: dark) {
+    body {
+        background: radial-gradient(circle at top, #0f2027, #000000);
+    }
+}
+
+/* ☀️ LIGHT MODE */
+@media (prefers-color-scheme: light) {
+    body {
+        background: radial-gradient(circle at top, #f5f7fa, #c3cfe2);
+    }
+}
+
+/* PARTICLE CANVAS */
+#particles {
+    position: absolute;
+    inset: 0;
+}
+
+/* CENTER IMAGE */
+.container {
+    position: relative;
+    z-index: 2;
+}
+
+.hero-image {
+    width: 360px;
+    max-width: 90vw;
+    animation: float 4s ease-in-out infinite;
+    transition: transform 0.4s ease, filter 0.4s ease;
+    filter: drop-shadow(0 0 18px rgba(255,255,255,0.5));
+}
+
+.hero-image:hover {
+    transform: scale(1.08);
+}
+
+/* FLOAT ANIMATION */
+@keyframes float {
+    0%   { transform: translateY(0); }
+    50%  { transform: translateY(-18px); }
+    100% { transform: translateY(0); }
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="particles"></canvas>
+
+<div class="container">
+    <!-- 🔁 Apni image ka naam yahan change kar sakte ho -->
+    <img src="/1000028108-removebg-preview.png" alt="Character" class="hero-image">
+</div>
+
+<script>
+const canvas = document.getElementById("particles");
+const ctx = canvas.getContext("2d");
+
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener("resize", resizeCanvas);
+
+let particles = [];
+const COUNT = 120;
+
+/* PARTICLE CLASS */
+class Particle {
+    constructor() {
+        this.reset();
+    }
+
+    reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 2 + 0.5;
+        this.vx = Math.random() * 0.6 - 0.3;
+        this.vy = Math.random() * 0.6 - 0.3;
+    }
+
+    update() {
+        this.x += this.vx;
+        this.y += this.vy;
+
+        if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+        if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+    }
+
+    draw() {
+        const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        ctx.fillStyle = isDark
+            ? "rgba(255,255,255,0.8)"
+            : "rgba(0,0,0,0.4)";
+
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+    }
+}
+
+/* INIT */
+function init() {
+    particles = [];
+    for (let i = 0; i < COUNT; i++) {
+        particles.push(new Particle());
+    }
+}
+
+/* ANIMATE */
+function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => {
+        p.update();
+        p.draw();
+    });
+    requestAnimationFrame(animate);
+}
+
+init();
+animate();
+
+/* IMAGE CLICK EFFECT */
+const img = document.querySelector(".hero-image");
+img.addEventListener("click", () => {
+    img.style.transform = "scale(1.15) rotate(2deg)";
+    setTimeout(() => img.style.transform = "", 300);
+});
+</script>
+
+</body>
+</html>
